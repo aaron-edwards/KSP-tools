@@ -1,15 +1,29 @@
+import { Box, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import { deepOrange, green } from "@mui/material/colors";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
+
+const mdTheme = createTheme({
+  palette: {
+    primary: { main: green[600] },
+    secondary: { main: deepOrange.A400 },
+  },
+});
+
 root.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={mdTheme}>
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+        <App />
+      </Box>
+    </ThemeProvider>
   </React.StrictMode>
 );
 
