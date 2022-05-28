@@ -6,7 +6,7 @@ export default function AppBar() {
     <MuiAppBar>
       <Toolbar>
         <Typography component="h1" variant="h6" noWrap sx={{ flexGrow: 1 }}>
-          KSP Tools
+          KSP Tools - Geosyncronus Orbit Calculator
         </Typography>
       </Toolbar>
     </MuiAppBar>
