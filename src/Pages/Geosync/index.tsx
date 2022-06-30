@@ -1,8 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 
 import {
   Autocomplete,
+  Box,
   Card,
   Grid,
   Stack,
@@ -12,15 +13,14 @@ import {
 import rawBodies, { Body as RawBody } from "../../data/bodies";
 import { formatDistance, formatTime } from "../../utils/format";
 
-type Body = Omit<RawBody, "satellites"> & { parents: string[] };
+type Body = RawBody & { parents: string[] };
 
-function flattenBodies(
-  { satellites, ...body }: RawBody,
-  parents: string[]
-): Body[] {
+function flattenBodies(body: RawBody, parents: string[]): Body[] {
   return [
     { ...body, parents },
-    ...satellites.flatMap((b) => flattenBodies(b, [...parents, body.name])),
+    ...body.satellites.flatMap((b) =>
+      flattenBodies(b, [...parents, body.name])
+    ),
   ];
 }
 
@@ -55,6 +55,14 @@ export default function GeosyncPage() {
     return null;
   }, [body, semiMajor]);
 
+  const scale = useCallback(
+    (value: number) => {
+      const s = body ? Math.max(semiMajor, body.radius * 2) * 2 * 1.05 : 100;
+      return (800 * value) / s;
+    },
+    [body, semiMajor]
+  );
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} md={4}>
@@ -81,41 +89,179 @@ export default function GeosyncPage() {
                 <TextField {...params} label="Celestial body" />
               )}
             />
-            <TextField
-              label="Rotation Period"
-              variant="standard"
-              fullWidth
-              value={body ? formatTime(body.rotationPeriod) : "N/A"}
-              InputProps={{ readOnly: true }}
-            />
 
             <TextField
               label="Factor"
               type="number"
               variant="standard"
               value={factor}
-              onChange={(e) => setFactor(parseInt(e.target.value, 10))}
+              onChange={(e) => setFactor(parseFloat(e.target.value))}
               InputLabelProps={{ shrink: true }}
             />
 
-            <TextField
-              label="Semi-Major Axis"
-              variant="standard"
-              fullWidth
-              value={formatDistance(semiMajor)}
-              InputProps={{ readOnly: true }}
-            />
+            <Box
+              component="dl"
+              gap={2}
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "max-content 1fr",
+              }}
+            >
+              <Typography
+                component="dt"
+                variant="body1"
+                fontWeight="bold"
+                textAlign="right"
+              >
+                Siderial Orbit Period
+              </Typography>
+              <Typography component="dd" variant="body1">
+                <Stack>
+                  {body ? formatTime(body.rotationPeriod) : "N/A"}
+                  <Typography variant="body2" color="gray">
+                    {body ? body.rotationPeriod : "N/A"} s
+                  </Typography>
+                </Stack>
+              </Typography>
 
-            <TextField
-              label="Altitude"
-              variant="standard"
-              fullWidth
-              value={formatDistance(semiMajor - (body?.radius ?? 0))}
-              InputProps={{ readOnly: true }}
-              error={!!error}
-              helperText={error}
-            />
+              <Typography
+                component="dt"
+                variant="body1"
+                fontWeight="bold"
+                textAlign="right"
+              >
+                Semi-Major Axis
+              </Typography>
+              <Typography component="dd" variant="body1">
+                {formatDistance(semiMajor)}
+              </Typography>
+
+              <Typography
+                component="dt"
+                variant="body1"
+                fontWeight="bold"
+                textAlign="right"
+              >
+                Altitude
+              </Typography>
+              <Typography component="dd" variant="body1">
+                {formatDistance(semiMajor - (body?.radius ?? 0))}
+              </Typography>
+
+              <Typography
+                component="dt"
+                variant="body1"
+                fontWeight="bold"
+                textAlign="right"
+              >
+                Siderial Orbit Period
+              </Typography>
+              <Typography component="dd" variant="body1">
+                <Stack>
+                  {body
+                    ? formatTime(
+                        2 *
+                          Math.PI *
+                          Math.sqrt(semiMajor ** 3 / (6.67408e-11 * body.mass))
+                      )
+                    : "N/A"}
+                  <Typography variant="body2" color="gray">
+                    {body
+                      ? `${Math.round(
+                          2 *
+                            Math.PI *
+                            Math.sqrt(
+                              semiMajor ** 3 / (6.67408e-11 * body.mass)
+                            )
+                        )} s`
+                      : "N/A"}
+                  </Typography>
+                </Stack>
+              </Typography>
+            </Box>
+
+            <Typography color="red">{error}</Typography>
           </Stack>
+        </Card>
+      </Grid>
+      <Grid item xs={12} md={8}>
+        <Card>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="-400 -400 800 800"
+            strokeWidth="1"
+            textAnchor="middle"
+            fontFamily="Arial"
+            fontSize="14"
+          >
+            {body && semiMajor && (
+              <>
+                {/* SOI */}
+                <circle
+                  cx="0"
+                  cy="0"
+                  r={scale(body.soi)}
+                  fill="yellow"
+                  fillOpacity={0.02}
+                  stroke="orange"
+                />
+                {/* Body */}
+                <circle
+                  cx="0"
+                  cy="0"
+                  r={scale(body.radius)}
+                  fill={body.color}
+                  stroke="none"
+                />
+                {body.atm && (
+                  <circle
+                    cx="0"
+                    cy="0"
+                    r={scale(body.radius + body.atm)}
+                    fill={body.color}
+                    fillOpacity={0.25}
+                  />
+                )}
+                {/* Orbit */}
+                <circle
+                  cx="0"
+                  cy="0"
+                  r={scale(semiMajor)}
+                  fill="none"
+                  stroke="black"
+                />
+
+                {body.satellites.map((s) => (
+                  <circle
+                    cx="0"
+                    cy="0"
+                    r={scale(s.sma)}
+                    stroke={s.color}
+                    fill="none"
+                  />
+                ))}
+
+                {/* Body */}
+                <text
+                  x="0"
+                  y="0"
+                  dy="0.4em"
+                  fill="black"
+                  strokeWidth={0.75}
+                  stroke="white"
+                  fontSize="18"
+                  fontWeight="bold"
+                >
+                  {body.name}
+                </text>
+
+                {/* Altitude */}
+                <text x="0" y={scale(semiMajor)} dy="1.2em" fontSize="16">
+                  Altitude {formatDistance(semiMajor - body.radius)}
+                </text>
+              </>
+            )}
+          </svg>
         </Card>
       </Grid>
     </Grid>

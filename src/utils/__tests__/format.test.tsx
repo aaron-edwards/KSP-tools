@@ -23,10 +23,10 @@ describe("format", () => {
 
   describe("distance", () => {
     it("should format meters for values < 1000", () => {
-      expect(formatDistance(999.45)).toEqual("999m");
+      expect(formatDistance(999.45)).toEqual("999 m");
     });
     it("should format km for values > 1000", () => {
-      expect(formatDistance(12_345.6)).toEqual("12.346km");
+      expect(formatDistance(12_345.6)).toEqual("12.346 km");
     });
   });
 });

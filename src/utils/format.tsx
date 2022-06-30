@@ -33,4 +33,4 @@ export const formatTime = (seconds: number) =>
     .join(" ");
 
 export const formatDistance = (meters: number) =>
-  meters > 1000 ? `${Math.round(meters) / 1000}km` : `${Math.round(meters)}m`;
+  meters > 1000 ? `${Math.round(meters) / 1000} km` : `${Math.round(meters)} m`;
