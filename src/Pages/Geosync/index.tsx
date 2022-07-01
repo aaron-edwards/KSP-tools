@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 
 import {
   Autocomplete,
@@ -10,19 +10,28 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import rawBodies, { Body as RawBody } from "../../data/bodies";
+import { bodies as rawBodies, Body as RawBody } from "../../data/bodies";
 import { formatDistance, formatTime } from "../../utils/format";
 
-type Body = RawBody & { parents: string[] };
+type Body = RawBody & {
+  parents?: string[];
+};
 
-function flattenBodies(body: RawBody, parents: string[]): Body[] {
-  return [
-    { ...body, parents },
-    ...body.satellites.flatMap((b) =>
-      flattenBodies(b, [...parents, body.name])
-    ),
-  ];
-}
+const getParents = (
+  body: RawBody,
+  allBodies: Record<string, RawBody>
+): string[] => {
+  const parentName = body?.orbit?.orbits;
+  if (!parentName) return [];
+  const parent = allBodies[parentName];
+  if (!parent) return [];
+  return [...getParents(parent, allBodies), parentName];
+};
+
+const bodies = Object.values(rawBodies).map((body) => ({
+  ...body,
+  parents: getParents(body, rawBodies),
+}));
 
 function geosyncronus(body: Body, factor: number) {
   return Math.cbrt(
@@ -32,11 +41,6 @@ function geosyncronus(body: Body, factor: number) {
 }
 
 export default function GeosyncPage() {
-  const bodies = useMemo(
-    () => rawBodies.flatMap((b) => flattenBodies(b, [])),
-    []
-  );
-
   const [body, setBody] = useState(
     bodies.find((b) => b.name === "Kerbin") ?? null
   );
@@ -71,7 +75,7 @@ export default function GeosyncPage() {
             <Autocomplete
               disablePortal
               value={body}
-              options={bodies}
+              options={Object.values(bodies)}
               onChange={(_, value) => setBody(value)}
               getOptionLabel={(option) => option.name}
               groupBy={(o) => o.parents.join(".")}
@@ -80,7 +84,7 @@ export default function GeosyncPage() {
               renderOption={(props, option) => (
                 <Typography
                   {...props}
-                  style={{ paddingLeft: 8 + 8 * option.parents.length }}
+                  style={{ paddingLeft: 8 + 8 * (option.parents?.length ?? 0) }}
                 >
                   {option.name}
                 </Typography>
@@ -194,7 +198,7 @@ export default function GeosyncPage() {
             fontFamily="Arial"
             fontSize="14"
           >
-            {body && semiMajor && (
+            {body && (
               <>
                 {/* SOI */}
                 <circle
@@ -205,6 +209,7 @@ export default function GeosyncPage() {
                   fillOpacity={0.02}
                   stroke="orange"
                 />
+
                 {/* Body */}
                 <circle
                   cx="0"
@@ -213,6 +218,7 @@ export default function GeosyncPage() {
                   fill={body.color}
                   stroke="none"
                 />
+
                 {body.atm && (
                   <circle
                     cx="0"
@@ -222,6 +228,7 @@ export default function GeosyncPage() {
                     fillOpacity={0.25}
                   />
                 )}
+
                 {/* Orbit */}
                 <circle
                   cx="0"
@@ -231,33 +238,16 @@ export default function GeosyncPage() {
                   stroke="black"
                 />
 
-                {body.satellites.map((s) => (
-                  <circle
-                    cx="0"
-                    cy="0"
-                    r={scale(s.sma)}
-                    stroke={s.color}
-                    fill="none"
-                  />
-                ))}
-
-                {/* Body */}
+                {/* Body Name */}
                 <text
                   x="0"
-                  y="0"
+                  y={-(10 + scale(body.radius + (body.atm ?? 0)))}
                   dy="0.4em"
                   fill="black"
-                  strokeWidth={0.75}
-                  stroke="white"
                   fontSize="18"
                   fontWeight="bold"
                 >
                   {body.name}
-                </text>
-
-                {/* Altitude */}
-                <text x="0" y={scale(semiMajor)} dy="1.2em" fontSize="16">
-                  Altitude {formatDistance(semiMajor - body.radius)}
                 </text>
               </>
             )}
