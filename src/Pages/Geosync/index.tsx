@@ -210,15 +210,6 @@ export default function GeosyncPage() {
                   stroke="orange"
                 />
 
-                {/* Body */}
-                <circle
-                  cx="0"
-                  cy="0"
-                  r={scale(body.radius)}
-                  fill={body.color}
-                  stroke="none"
-                />
-
                 {body.atm && (
                   <circle
                     cx="0"
@@ -226,6 +217,24 @@ export default function GeosyncPage() {
                     r={scale(body.radius + body.atm)}
                     fill={body.color}
                     fillOpacity={0.25}
+                  />
+                )}
+                {/* Body */}
+                {body.url ? (
+                  <image
+                    href={body.url}
+                    x={-scale(body.radius)}
+                    y={-scale(body.radius)}
+                    height={scale(body.radius) * 2}
+                    width={scale(body.radius) * 2}
+                  />
+                ) : (
+                  <circle
+                    cx="0"
+                    cy="0"
+                    r={scale(body.radius)}
+                    fill={body.color}
+                    stroke="none"
                   />
                 )}
 

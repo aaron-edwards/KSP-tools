@@ -12,6 +12,7 @@ export type Body = {
   rotationPeriod: number;
   atm?: number;
   color: string;
+  url?: string;
   orbit?: Orbit;
 };
 
@@ -24,6 +25,7 @@ export const bodies: Record<string, Body> = {
     soi: Number.MAX_SAFE_INTEGER,
     rotationPeriod: 432_000,
     color: "#FFFF00",
+    url: "bodies/Kerbol.png",
   },
   Kerbin: {
     name: "Kerbin",
@@ -34,6 +36,7 @@ export const bodies: Record<string, Body> = {
     rotationPeriod: 21_549.425,
     atm: 70_000,
     color: "#8ACAC2",
+    url: "bodies/Kerbin.png",
     orbit: {
       orbits: "Kerbol",
       semiMajorAxis: 13_599_840_256,
@@ -47,6 +50,7 @@ export const bodies: Record<string, Body> = {
     soi: 2_429_559.1,
     rotationPeriod: 138_984.38,
     color: "#6B6A76",
+    url: "bodies/Mun.png",
     orbit: {
       orbits: "Kerbin",
       semiMajorAxis: 12_000_000,
@@ -60,6 +64,7 @@ export const bodies: Record<string, Body> = {
     soi: 2_247_428.4,
     rotationPeriod: 40_400.0,
     color: "#5B4C68",
+    url: "bodies/Minmus.png",
     orbit: {
       orbits: "Kerbin",
       semiMajorAxis: 47_000_000,
