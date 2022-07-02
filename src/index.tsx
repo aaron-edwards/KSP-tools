@@ -2,6 +2,7 @@ import { Box, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { deepOrange, green } from "@mui/material/colors";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
@@ -18,12 +19,14 @@ const mdTheme = createTheme({
 
 root.render(
   <React.StrictMode>
-    <ThemeProvider theme={mdTheme}>
-      <Box sx={{ display: "flex" }}>
-        <CssBaseline />
-        <App />
-      </Box>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider theme={mdTheme}>
+        <Box sx={{ display: "flex" }}>
+          <CssBaseline />
+          <App />
+        </Box>
+      </ThemeProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
 
