@@ -17,6 +17,9 @@ const mdTheme = createTheme({
   },
 });
 
+// eslint-disable-next-line no-console
+console.log(process.env.PUBLIC_URL);
+
 root.render(
   <React.StrictMode>
     <BrowserRouter basename={process.env.PUBLIC_URL}>

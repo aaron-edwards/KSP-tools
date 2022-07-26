@@ -3,7 +3,7 @@
   "packageManager": "yarn@3.2.1",
   "version": "0.1.0",
   "private": true,
-  "homepage": ".",
+  "homepage": "/KSP-tools",
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
